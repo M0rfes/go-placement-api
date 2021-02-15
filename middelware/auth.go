@@ -52,7 +52,7 @@ func validate(c *fiber.Ctx, verifier func(t string) (*jwt.Token, error)) error {
 		claims := token.Claims.(jwt.MapClaims)
 		fmt.Println(claims["roll"])
 		c.Locals("roll", claims["roll"])
-		c.Locals("userID", claims["uerID"].(string))
+		c.Locals("userID", claims["userID"].(string))
 		return c.Next()
 	}
 	e := models.UnAuthorizeError{

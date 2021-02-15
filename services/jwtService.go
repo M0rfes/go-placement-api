@@ -18,8 +18,8 @@ type JwtService interface {
 }
 
 type accessJwtClaim struct {
-	Name string      `json:"name"`
-	Roll models.Roll `json:"roll"`
+	UserID string      `json:"userID"`
+	Roll   models.Roll `json:"roll"`
 	jwt.StandardClaims
 }
 type refreshJwtClaim struct {

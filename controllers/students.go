@@ -28,6 +28,7 @@ func LoginStudent(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Status:  400,
 			Message: "body cant be empty",
+			Key:     "email,password",
 		}
 		return c.Status(400).JSON(error)
 	}
@@ -35,6 +36,7 @@ func LoginStudent(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Status:  400,
 			Message: "email cant be empty",
+			Key:     "email",
 		}
 		return c.Status(400).JSON(error)
 	}
@@ -42,13 +44,20 @@ func LoginStudent(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Status:  400,
 			Message: "password cant be empty",
+			Key:     "password",
 		}
 		return c.Status(400).JSON(error)
 	}
-	// TODO: call a loginStudent service to log the student in
-
-	accessToken, _ := jwtService.GenerateAccessToken(body.Email, models.StudentRoll)
-	refreshToken, _ := jwtService.GenerateRefreshToken(body.Email, models.StudentRoll)
+	student, err := studentService.LoginStudent(body.Email, body.Password)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusUnauthorized,
+			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	accessToken, _ := jwtService.GenerateAccessToken(student.ID.Hex(), models.StudentRoll)
+	refreshToken, _ := jwtService.GenerateRefreshToken(student.ID.Hex(), models.StudentRoll)
 	tokenResponse := models.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -56,10 +65,18 @@ func LoginStudent(c *fiber.Ctx) error {
 	return c.JSON(tokenResponse)
 }
 
-// GetLoggedInUser get the logged in user
-func GetLoggedInUser(c *fiber.Ctx) error {
+// GetLoggedInStudent get the logged in user
+func GetLoggedInStudent(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
-	return c.SendString(userID)
+	student, err := studentService.FindStudentByID(userID)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadGateway,
+			Message: "someting went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(student)
 }
 
 // RefreshToken refreshes token
@@ -191,7 +208,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	err := studentService.Register(body)
+	student, err := studentService.Register(body)
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusInternalServerError,
@@ -199,8 +216,8 @@ func RegisterStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	accessToken, _ := jwtService.GenerateAccessToken(body.ID.String(), models.StudentRoll)
-	refreshToken, _ := jwtService.GenerateRefreshToken(body.ID.String(), models.StudentRoll)
+	accessToken, _ := jwtService.GenerateAccessToken(student.ID.Hex(), models.StudentRoll)
+	refreshToken, _ := jwtService.GenerateRefreshToken(student.ID.Hex(), models.StudentRoll)
 	tokenResponse := models.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
