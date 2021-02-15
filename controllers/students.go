@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"placement/models"
+	"strconv"
 
 	"placement/services"
 
@@ -225,7 +226,16 @@ func RegisterStudent(c *fiber.Ctx) error {
 	return c.JSON(tokenResponse)
 }
 
+// GetAllStudents gets a list of all students
 func GetAllStudents(c *fiber.Ctx) error {
-	students := studentService.GetAllStudents()
+	limit, err := strconv.ParseInt(c.Params("limit", "30"), 10, 64)
+	if err != nil {
+		limit = 30
+	}
+	skip, err := strconv.ParseInt(c.Params("skip", "0"), 10, 64)
+	if err != nil {
+		skip = 0
+	}
+	students := studentService.GetAllStudents(&limit, &skip)
 	return c.JSON(students)
 }
