@@ -228,11 +228,11 @@ func RegisterStudent(c *fiber.Ctx) error {
 
 // GetAllStudents gets a list of all students
 func GetAllStudents(c *fiber.Ctx) error {
-	limit, err := strconv.ParseInt(c.Params("limit", "30"), 10, 64)
+	limit, err := strconv.ParseInt(c.Query("limit", "30"), 10, 64)
 	if err != nil {
 		limit = 30
 	}
-	skip, err := strconv.ParseInt(c.Params("skip", "0"), 10, 64)
+	skip, err := strconv.ParseInt(c.Query("skip", "0"), 10, 64)
 	if err != nil {
 		skip = 0
 	}
