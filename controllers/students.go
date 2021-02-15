@@ -224,3 +224,8 @@ func RegisterStudent(c *fiber.Ctx) error {
 	}
 	return c.JSON(tokenResponse)
 }
+
+func GetAllStudents(c *fiber.Ctx) error {
+	students := studentService.GetAllStudents()
+	return c.JSON(students)
+}

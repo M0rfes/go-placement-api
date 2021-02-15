@@ -25,6 +25,7 @@ type StudentService interface {
 	FindOneStudent(query bson.M) (*models.Student, error)
 	LoginStudent(email, password string) (*models.Student, error)
 	FindStudentByID(id string) (*models.Student, error)
+	GetAllStudents() []*models.Student
 }
 
 type studentService struct {
@@ -92,4 +93,19 @@ func (s *studentService) FindStudentByID(id string) (*models.Student, error) {
 	}
 
 	return student, nil
+}
+
+func (s *studentService) GetAllStudents() []*models.Student {
+	student := &models.Student{}
+	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{}, &options.FindOptions{
+		Projection: bson.M{"password": false},
+	})
+	if err != nil {
+		return nil
+	}
+	students := make([]*models.Student, 10)
+	if err = result.All(mgm.Ctx(), &students); err != nil {
+		return nil
+	}
+	return students
 }
