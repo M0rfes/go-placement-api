@@ -26,6 +26,7 @@ type StudentService interface {
 	LoginStudent(email, password string) (*models.Student, error)
 	FindStudentByID(id string) (*models.Student, error)
 	GetAllStudents(limit, skip *int64) []*models.Student
+	UpdateLoggedInStudent(student *models.Student) error
 }
 
 type studentService struct {
@@ -110,4 +111,8 @@ func (s *studentService) GetAllStudents(limit, skip *int64) []*models.Student {
 		return nil
 	}
 	return students
+}
+
+func (s *studentService) UpdateLoggedInStudent(student *models.Student) error {
+	return mgm.Coll(student).Update(student)
 }

@@ -8,9 +8,9 @@ type Student struct {
 	FirstName        string `json:"firstName" bson:"firstName"`
 	LastName         string `json:"lastName" bson:"lastName"`
 	Avatar           string `json:"avatar" bson:"avatar"`
-	UINNumber        string `json:"UINNumber" bson:"UINNumber"`
-	PhoneNumber      string `json:"PhoneNumber" bson:"phoneNumber"`
-	Gender           string `json:"Gender" bson:"gender"`
+	UINNumber        string `json:"uinNumber" bson:"uinNumber"`
+	PhoneNumber      string `json:"phoneNumber" bson:"phoneNumber"`
+	Gender           string `json:"gender" bson:"gender"`
 	Email            string `json:"email" bson:"email"`
 	Department       string `json:"department" bson:"department"`
 	Program          string `json:"program" bson:"program" bson:"program"`

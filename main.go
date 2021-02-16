@@ -17,7 +17,9 @@ func init() {
 }
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork: true,
+	})
 	studentsRouter := app.Group("/students")
 	routes.SetupStudentsRoute(studentsRouter)
 	app.Get("/", func(c *fiber.Ctx) error {

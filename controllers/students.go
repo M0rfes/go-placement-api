@@ -96,7 +96,14 @@ func RefreshToken(c *fiber.Ctx) error {
 // RegisterStudent to register a new student
 func RegisterStudent(c *fiber.Ctx) error {
 	var body *models.Student
-	json.Unmarshal(c.Body(), &body)
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadGateway,
+			Message: "something went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
 	if body == nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
@@ -238,4 +245,64 @@ func GetAllStudents(c *fiber.Ctx) error {
 	}
 	students := studentService.GetAllStudents(&limit, &skip)
 	return c.JSON(students)
+}
+
+func UpdateStudent(c *fiber.Ctx) error {
+	var body *models.Student
+	id := c.Params("id")
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadGateway,
+			Message: "something went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	student, err := studentService.FindStudentByID(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadGateway,
+			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if firstName := body.FirstName; firstName != "" {
+		student.FirstName = firstName
+	}
+	if lastName := body.LastName; lastName != "" {
+		student.LastName = lastName
+	}
+	if uinNumber := body.UINNumber; uinNumber != "" {
+		student.UINNumber = uinNumber
+	}
+	if phoneNumber := body.PhoneNumber; phoneNumber != "" {
+		student.PhoneNumber = phoneNumber
+	}
+	if gender := body.Gender; gender != "" {
+		student.Gender = gender
+	}
+	if email := body.Email; email != "" {
+		student.Email = email
+	}
+	if department := body.Department; department != "" {
+		student.Department = department
+	}
+	if program := body.Program; program != "" {
+		student.Program = program
+	}
+	if currentAddress := body.CurrentAddress; currentAddress != "" {
+		student.CurrentAddress = currentAddress
+	}
+	if homeAddress := body.HomeAddress; homeAddress != "" {
+		student.HomeAddress = homeAddress
+	}
+	err = studentService.UpdateLoggedInStudent(student)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadGateway,
+			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(student)
 }
