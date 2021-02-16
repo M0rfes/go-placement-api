@@ -131,7 +131,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
 			Message: "UIN number cant be empty",
-			Key:     "UINNumber",
+			Key:     "uinNumber",
 		}
 
 		return c.Status(error.Status).JSON(error)

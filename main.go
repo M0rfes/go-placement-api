@@ -5,6 +5,7 @@ import (
 	"placement/routes"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,6 +21,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Prefork: true,
 	})
+	app.Use(cors.New())
 	studentsRouter := app.Group("/students")
 	routes.SetupStudentsRoute(studentsRouter)
 	app.Get("/", func(c *fiber.Ctx) error {
