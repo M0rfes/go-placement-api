@@ -28,7 +28,7 @@ func LoginStudent(c *fiber.Ctx) error {
 	if body == nil {
 		error := models.ErrorResponse{
 			Status:  400,
-			Message: "body cant be empty",
+			Message: "body can't be empty",
 			Key:     "email,password",
 		}
 		return c.Status(400).JSON(error)
@@ -36,7 +36,7 @@ func LoginStudent(c *fiber.Ctx) error {
 	if body.Email == "" {
 		error := models.ErrorResponse{
 			Status:  400,
-			Message: "email cant be empty",
+			Message: "email can't be empty",
 			Key:     "email",
 		}
 		return c.Status(400).JSON(error)
@@ -44,7 +44,7 @@ func LoginStudent(c *fiber.Ctx) error {
 	if body.Password == "" {
 		error := models.ErrorResponse{
 			Status:  400,
-			Message: "password cant be empty",
+			Message: "password can't be empty",
 			Key:     "password",
 		}
 		return c.Status(400).JSON(error)
@@ -73,7 +73,7 @@ func GetLoggedInStudent(c *fiber.Ctx) error {
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadGateway,
-			Message: "someting went wrong",
+			Message: "something went wrong",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
@@ -107,14 +107,14 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body == nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "body cant be empty",
+			Message: "body can't be empty",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
 	if body.FirstName == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "first name cant be empty",
+			Message: "First name can't be empty",
 			Key:     "fistName",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -122,7 +122,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.LastName == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "last name cant be empty",
+			Message: "Last name can't be empty",
 			Key:     "lastName",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -130,7 +130,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.UINNumber == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "UIN number cant be empty",
+			Message: "UIN number can't be empty",
 			Key:     "uinNumber",
 		}
 
@@ -139,7 +139,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if len(body.PhoneNumber) != 10 {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "invalid Phone number",
+			Message: "Invalid Phone number",
 			Key:     "phoneNumber",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -147,7 +147,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Gender == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "gender cant be empty",
+			Message: "Gender can't be empty",
 			Key:     "gender",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -155,7 +155,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Email == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "email cant be empty",
+			Message: "Email can't be empty",
 			Key:     "email",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -163,7 +163,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Department == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "Department cant be empty",
+			Message: "Department can't be empty",
 			Key:     "department",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -171,7 +171,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Program == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "program cant be empty",
+			Message: "Program can't be empty",
 			Key:     "program",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -179,7 +179,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.HomeAddress == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "home address cant be empty",
+			Message: "Home address can't be empty",
 			Key:     "homeAddress",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -187,7 +187,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.CurrentAddress == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "current address cant be empty",
+			Message: "Current address can't be empty",
 			Key:     "currentAddress",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -195,7 +195,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Password == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "password cant be empty",
+			Message: "Password can't be empty",
 			Key:     "password",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -203,7 +203,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.ConfirmPassword == "" {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "confirm password cant be empty",
+			Message: "Confirm password can't be empty",
 			Key:     "confirmPassword",
 		}
 		return c.Status(error.Status).JSON(error)
@@ -211,7 +211,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	if body.Password != body.ConfirmPassword {
 		error := models.ErrorResponse{
 			Status:  http.StatusUnauthorized,
-			Message: "password and confirm password must be the same",
+			Message: "Password and confirm password must be the same",
 			Key:     "[password confirmPassword]",
 		}
 		return c.Status(error.Status).JSON(error)
