@@ -2,9 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"placement/models"
 	"strconv"
+	"strings"
 
 	"placement/services"
 
@@ -301,6 +304,146 @@ func UpdateStudent(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadGateway,
 			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(student)
+}
+
+func UploadStudentAvatar(c *fiber.Ctx) error {
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "can't retrive file form body, Try again",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if file == nil {
+		error := models.ErrorResponse{
+			Message: "empty file",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	path, err := os.Getwd()
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	userID := c.Locals("userID")
+	nameArray := strings.Split(file.Filename, ".")
+	ext := nameArray[len(nameArray)-1]
+	if ext != "jpg" && ext != "png" && ext != "jpeg" {
+		error := models.ErrorResponse{
+			Message: "only jpg png and jpeg file formates are supported",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, userID, ext)
+	err = c.SaveFile(file, filePath)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	student, err := studentService.FindStudentByID(userID.(string))
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	student.Avatar = fmt.Sprintf("/avatar/%s.%s", userID, ext)
+	err = studentService.UpdateLoggedInStudent(student)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(student)
+}
+
+func UploadStudentResume(c *fiber.Ctx) error {
+	file, err := c.FormFile("resume")
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "can't retrive file form body, Try again",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if file == nil {
+		error := models.ErrorResponse{
+			Message: "empty file",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	path, err := os.Getwd()
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	userID := c.Locals("userID")
+	nameArray := strings.Split(file.Filename, ".")
+	ext := nameArray[len(nameArray)-1]
+	if ext != "pdf" {
+		error := models.ErrorResponse{
+			Message: "only PDF formate are supported",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	filePath := fmt.Sprintf("%s/public/resume/%s.%s", path, userID, ext)
+	err = c.SaveFile(file, filePath)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	student, err := studentService.FindStudentByID(userID.(string))
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	student.Resume = fmt.Sprintf("/resume/%s.%s", userID, ext)
+	err = studentService.UpdateLoggedInStudent(student)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
 		}
 		return c.Status(error.Status).JSON(error)
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"placement/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,15 @@ import (
 )
 
 func init() {
+	if _, err := os.Stat("./public"); os.IsNotExist(err) {
+		os.Mkdir("public", os.FileMode(0755))
+		if _, err := os.Stat("./public/avatar"); os.IsNotExist(err) {
+			os.Mkdir("public/avatar", os.FileMode(0755))
+		}
+		if _, err := os.Stat("./public.resume"); os.IsNotExist(err) {
+			os.Mkdir("public/resume", os.FileMode(0755))
+		}
+	}
 	err := mgm.SetDefaultConfig(nil, "placement", options.Client().ApplyURI("mongodb+srv://faheem:faheem@cluster0.6ezyv.mongodb.net"))
 	if err != nil {
 		log.Fatal(err)
@@ -21,6 +31,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Prefork: true,
 	})
+	app.Static("/", "./public")
 	app.Use(cors.New())
 	studentsRouter := app.Group("/students")
 	routes.SetupStudentsRoute(studentsRouter)

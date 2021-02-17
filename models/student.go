@@ -18,4 +18,5 @@ type Student struct {
 	HomeAddress      string `json:"homeAddress" bson:"homeAddress"`
 	Password         string `json:"password" bson:"password"`
 	ConfirmPassword  string `json:"confirmPassword" bson:"-"`
+	Resume           string `json:"resume" bson:"resume"`
 }
