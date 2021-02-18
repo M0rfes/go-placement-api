@@ -81,9 +81,6 @@ func (s *studentService) LoginStudent(email, password string) (*models.Student, 
 	return student, nil
 }
 
-// &options.FindOneOptions{
-// 	Projection: bson.M{"password": false},
-// }
 func (s *studentService) FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error) {
 	student := &models.Student{}
 	pid, err := student.PrepareID(id)

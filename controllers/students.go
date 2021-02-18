@@ -103,19 +103,72 @@ func RefreshToken(c *fiber.Ctx) error {
 
 // RegisterStudent to register a new student
 func RegisterStudent(c *fiber.Ctx) error {
-	var body *models.Student
-	err := json.Unmarshal(c.Body(), &body)
+	body := &models.Student{
+		FirstName:       c.FormValue("firstName"),
+		LastName:        c.FormValue("lastName"),
+		UINNumber:       c.FormValue("uinNumber"),
+		PhoneNumber:     c.FormValue("phoneNumber"),
+		Gender:          c.FormValue("gender"),
+		Email:           c.FormValue("email"),
+		Department:      c.FormValue("department"),
+		Program:         c.FormValue("program"),
+		CurrentAddress:  c.FormValue("currentAddress"),
+		HomeAddress:     c.FormValue("homeAddress"),
+		Password:        c.FormValue("password"),
+		ConfirmPassword: c.FormValue("confirmPassword"),
+	}
+	resume, err := c.FormFile("resume")
 	if err != nil {
 		error := models.ErrorResponse{
-			Status:  http.StatusBadGateway,
 			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	if body == nil {
+	if resume == nil {
 		error := models.ErrorResponse{
+			Message: "empty file",
 			Status:  http.StatusBadRequest,
-			Message: "body cant be empty",
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	nameArray := strings.Split(resume.Filename, ".")
+	resumeExt := nameArray[len(nameArray)-1]
+	if resumeExt != "pdf" {
+		error := models.ErrorResponse{
+			Message: "only PDF formate are supported",
+			Status:  http.StatusBadRequest,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	avatar, err := c.FormFile("avatar")
+
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if avatar == nil {
+		error := models.ErrorResponse{
+			Message: "empty file",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	nameArray = strings.Split(avatar.Filename, ".")
+	avatarExt := nameArray[len(nameArray)-1]
+	if avatarExt != "jpg" && avatarExt != "png" && avatarExt != "jpeg" {
+		error := models.ErrorResponse{
+			Message: "only jpg png and jpeg file formates are supported",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
@@ -232,6 +285,14 @@ func RegisterStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+	path, err := os.Getwd()
+	resumePath := fmt.Sprintf("%s/public/resume/%s.%s", path, student.ID.Hex(), resumeExt)
+	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, student.ID.Hex(), avatarExt)
+	c.SaveFile(resume, resumePath)
+	c.SaveFile(avatar, filePath)
+	student.Avatar = fmt.Sprintf("/avatar/%s.%s", student.ID, avatarExt)
+	student.Resume = fmt.Sprintf("/resume/%s.%s", student.ID, resumeExt)
+	studentService.UpdateLoggedInStudent(student)
 	accessToken, _ := jwtService.GenerateAccessToken(student.ID.Hex(), models.StudentRoll)
 	refreshToken, _ := jwtService.GenerateRefreshToken(student.ID.Hex(), models.StudentRoll)
 	tokenResponse := models.LoginResponse{
@@ -385,6 +446,7 @@ func UploadStudentAvatar(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+	student.Password = ""
 	return c.JSON(student)
 }
 
@@ -457,5 +519,19 @@ func UploadStudentResume(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	student.Password = ""
+	return c.JSON(student)
+}
+
+// GetOneStudent function to get one student
+func GetOneStudent(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	student, err := studentService.FindStudentByID(userID)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("user with id %s not found", userID),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
 	return c.JSON(student)
 }
