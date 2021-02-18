@@ -72,7 +72,6 @@ func (s *studentService) FindOneStudent(query *bson.M, opts ...*options.FindOneO
 
 func (s *studentService) LoginStudent(email, password string) (*models.Student, error) {
 	student, _ := s.FindOneStudent(&bson.M{"email": email})
-	fmt.Println(student.Password)
 	if student == nil {
 		return nil, fmt.Errorf("UnAuthorize")
 	}

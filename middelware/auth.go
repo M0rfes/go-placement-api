@@ -1,7 +1,6 @@
 package middelware
 
 import (
-	"fmt"
 	"net/http"
 	"placement/models"
 	"placement/services"
@@ -50,7 +49,6 @@ func validate(c *fiber.Ctx, verifier func(t string) (*jwt.Token, error)) error {
 	}
 	if token.Valid {
 		claims := token.Claims.(jwt.MapClaims)
-		fmt.Println(claims["roll"])
 		c.Locals("roll", claims["roll"])
 		c.Locals("userID", claims["userID"].(string))
 		return c.Next()

@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -32,6 +30,5 @@ func (s *hashService) HashPassword(password string) (string, error) {
 // CheckPasswordHash method to check a password and hash
 func (s *hashService) CheckPasswordHash(hash, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	fmt.Println(err, hash, password)
 	return err == nil
 }
