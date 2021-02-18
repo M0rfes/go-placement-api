@@ -1,6 +1,10 @@
 package services
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 // HashService Interface defining hash service
 type HashService interface {
@@ -26,7 +30,8 @@ func (s *hashService) HashPassword(password string) (string, error) {
 }
 
 // CheckPasswordHash method to check a password and hash
-func (s *hashService) CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(password), []byte(hash))
+func (s *hashService) CheckPasswordHash(hash, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	fmt.Println(err, hash, password)
 	return err == nil
 }

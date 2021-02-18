@@ -12,19 +12,19 @@ import (
 )
 
 var (
-	hash HashService
+	studentHash HashService
 )
 
 func init() {
-	hash = &hashService{14}
+	studentHash = &hashService{14}
 }
 
 // StudentService interface
 type StudentService interface {
-	Register(student *models.Student) (*models.Student, error)
-	FindOneStudent(query bson.M) (*models.Student, error)
+	RegisterStudent(student *models.Student) (*models.Student, error)
+	FindOneStudent(query *bson.M, opts ...*options.FindOneOptions) (*models.Student, error)
 	LoginStudent(email, password string) (*models.Student, error)
-	FindStudentByID(id string) (*models.Student, error)
+	FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error)
 	GetAllStudents(limit, skip *int64) []*models.Student
 	UpdateLoggedInStudent(student *models.Student) error
 }
@@ -38,12 +38,12 @@ func NewStudentService() StudentService {
 }
 
 // Register method to register a new student
-func (s *studentService) Register(student *models.Student) (*models.Student, error) {
-	alreadyExistingStudent, _ := s.FindOneStudent(bson.M{operator.Or: []bson.M{{"email": student.Email}, {"UINNumber": student.UINNumber}}})
+func (s *studentService) RegisterStudent(student *models.Student) (*models.Student, error) {
+	alreadyExistingStudent, _ := s.FindOneStudent(&bson.M{operator.Or: []bson.M{{"email": student.Email}, {"UINNumber": student.UINNumber}}})
 	if alreadyExistingStudent != nil {
 		return nil, errors.New("email or uin already in use")
 	}
-	hashPassword, err := hash.HashPassword(student.Password)
+	hashPassword, err := studentHash.HashPassword(student.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -56,9 +56,14 @@ func (s *studentService) Register(student *models.Student) (*models.Student, err
 }
 
 // FindOneStudent find one student by a query
-func (s *studentService) FindOneStudent(query bson.M) (*models.Student, error) {
+func (s *studentService) FindOneStudent(query *bson.M, opts ...*options.FindOneOptions) (*models.Student, error) {
 	alreadyExistingStudent := &models.Student{}
-	err := mgm.Coll(alreadyExistingStudent).First(query, alreadyExistingStudent)
+	result := mgm.Coll(alreadyExistingStudent).FindOne(mgm.Ctx(), query, opts...)
+
+	if err := result.Err(); err != nil {
+		return nil, err
+	}
+	err := result.Decode(alreadyExistingStudent)
 	if err != nil {
 		return nil, err
 	}
@@ -66,29 +71,27 @@ func (s *studentService) FindOneStudent(query bson.M) (*models.Student, error) {
 }
 
 func (s *studentService) LoginStudent(email, password string) (*models.Student, error) {
-	student, _ := s.FindOneStudent(bson.M{"email": email})
+	student, _ := s.FindOneStudent(&bson.M{"email": email})
+	fmt.Println(student.Password)
 	if student == nil {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
-	if hash.CheckPasswordHash(password, student.Password) {
+	if !studentHash.CheckPasswordHash(student.Password, password) {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
 	return student, nil
 }
 
-func (s *studentService) FindStudentByID(id string) (*models.Student, error) {
+// &options.FindOneOptions{
+// 	Projection: bson.M{"password": false},
+// }
+func (s *studentService) FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error) {
 	student := &models.Student{}
 	pid, err := student.PrepareID(id)
 	if err != nil {
 		return nil, err
 	}
-	result := mgm.Coll(student).FindOne(mgm.Ctx(), bson.M{"_id": pid}, &options.FindOneOptions{
-		Projection: bson.M{"password": false},
-	})
-	if result.Err() != nil {
-		return nil, result.Err()
-	}
-	err = result.Decode(student)
+	student, err = s.FindOneStudent(&bson.M{"_id": pid}, opts...)
 	if err != nil {
 		return nil, err
 	}

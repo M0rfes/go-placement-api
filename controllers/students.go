@@ -12,6 +12,8 @@ import (
 	"placement/services"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -65,6 +67,7 @@ func LoginStudent(c *fiber.Ctx) error {
 	tokenResponse := models.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		Roll:         models.StudentRoll,
 	}
 	return c.JSON(tokenResponse)
 }
@@ -72,7 +75,9 @@ func LoginStudent(c *fiber.Ctx) error {
 // GetLoggedInStudent get the logged in user
 func GetLoggedInStudent(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
-	student, err := studentService.FindStudentByID(userID)
+	student, err := studentService.FindStudentByID(userID, &options.FindOneOptions{
+		Projection: bson.M{"password": false},
+	})
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadGateway,
@@ -219,7 +224,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	student, err := studentService.Register(body)
+	student, err := studentService.RegisterStudent(body)
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusInternalServerError,
@@ -232,6 +237,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	tokenResponse := models.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		Roll:         models.StudentRoll,
 	}
 	return c.JSON(tokenResponse)
 }
@@ -250,6 +256,7 @@ func GetAllStudents(c *fiber.Ctx) error {
 	return c.JSON(students)
 }
 
+// UpdateStudent updates the logged in student
 func UpdateStudent(c *fiber.Ctx) error {
 	var body *models.Student
 	id := c.Params("id")
@@ -310,6 +317,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 	return c.JSON(student)
 }
 
+// UploadStudentAvatar uploads and updates avatar for logged in student
 func UploadStudentAvatar(c *fiber.Ctx) error {
 	file, err := c.FormFile("avatar")
 	if err != nil {
@@ -380,6 +388,7 @@ func UploadStudentAvatar(c *fiber.Ctx) error {
 	return c.JSON(student)
 }
 
+// UploadStudentResume uploads and updates resume for logged in Student
 func UploadStudentResume(c *fiber.Ctx) error {
 	file, err := c.FormFile("resume")
 	if err != nil {

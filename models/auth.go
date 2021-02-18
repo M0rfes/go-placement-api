@@ -27,6 +27,7 @@ type ErrorResponse struct {
 type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+	Roll         Roll   `json:"roll"`
 }
 
 // UnAuthorizeError defines the structure for unauthorize error response
