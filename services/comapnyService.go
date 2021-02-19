@@ -72,3 +72,7 @@ func (s *companyService) FindOneCompany(query *bson.M, opts ...*options.FindOneO
 	}
 	return company, nil
 }
+
+// func (s *companyService) UpdateCompany(company *models.Company) (*models.Company, error) {
+
+// }

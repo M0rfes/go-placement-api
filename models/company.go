@@ -14,5 +14,5 @@ type Company struct {
 	Address            string `json:"address" bson:"address"`
 	Password           string `json:"password" bson:"password"`
 	ConfirmPassword    string `json:"confirmPassword" bson:"-"`
-	Logo               string `json:"logo" bson:"logo"`
+	Avatar             string `json:"avatar" bson:"avatar"`
 }

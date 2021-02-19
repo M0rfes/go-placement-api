@@ -277,7 +277,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	student, err := studentService.RegisterStudent(body)
+	body, err = studentService.RegisterStudent(body)
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusInternalServerError,
@@ -286,15 +286,25 @@ func RegisterStudent(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	path, err := os.Getwd()
-	resumePath := fmt.Sprintf("%s/public/resume/%s.%s", path, student.ID.Hex(), resumeExt)
-	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, student.ID.Hex(), avatarExt)
-	c.SaveFile(resume, resumePath)
-	c.SaveFile(avatar, filePath)
-	student.Avatar = fmt.Sprintf("/avatar/%s.%s", student.ID, avatarExt)
-	student.Resume = fmt.Sprintf("/resume/%s.%s", student.ID, resumeExt)
-	studentService.UpdateLoggedInStudent(student)
-	accessToken, _ := jwtService.GenerateAccessToken(student.ID.Hex(), models.StudentRoll)
-	refreshToken, _ := jwtService.GenerateRefreshToken(student.ID.Hex(), models.StudentRoll)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	resumePath := fmt.Sprintf("%s/public/resume/%s.%s", path, body.ID.Hex(), resumeExt)
+	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, body.ID.Hex(), avatarExt)
+
+	if err = c.SaveFile(resume, resumePath); err == nil {
+		body.Avatar = fmt.Sprintf("/avatar/%s.%s", body.ID, avatarExt)
+	}
+	if err = c.SaveFile(avatar, filePath); err == nil {
+		body.Resume = fmt.Sprintf("/resume/%s.%s", body.ID, resumeExt)
+		studentService.UpdateLoggedInStudent(body)
+	}
+	accessToken, _ := jwtService.GenerateAccessToken(body.ID.Hex(), models.StudentRoll)
+	refreshToken, _ := jwtService.GenerateRefreshToken(body.ID.Hex(), models.StudentRoll)
 	tokenResponse := models.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
