@@ -22,6 +22,7 @@ type CompanyService interface {
 	RegisterCompany(company *models.Company) (*models.Company, error)
 	LoginCompany(email, password string) (*models.Company, error)
 	FindOneCompany(query *bson.M, opts ...*options.FindOneOptions) (*models.Company, error)
+	UpdateCompany(company *models.Company) error
 }
 
 type companyService struct {
@@ -73,6 +74,6 @@ func (s *companyService) FindOneCompany(query *bson.M, opts ...*options.FindOneO
 	return company, nil
 }
 
-// func (s *companyService) UpdateCompany(company *models.Company) (*models.Company, error) {
-
-// }
+func (s *companyService) UpdateCompany(company *models.Company) error {
+	return mgm.Coll(company).Update(company)
+}

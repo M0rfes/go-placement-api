@@ -19,6 +19,7 @@ func init() {
 	companyService = services.NewCompanyService()
 }
 
+// RegisterCompany handler to register a company
 func RegisterCompany(c *fiber.Ctx) error {
 	var body = &models.Company{
 		Name:               c.FormValue("name"),
@@ -158,7 +159,11 @@ func RegisterCompany(c *fiber.Ctx) error {
 
 	if err = c.SaveFile(avatar, avatarPath); err == nil {
 		body.Avatar = fmt.Sprintf("/avatar/%s.%s", body.ID.Hex(), avatarExt)
-		// companyService
+		companyService.UpdateCompany(body)
 	}
 	return c.JSON(body)
 }
+
+// func LoginCompany(c *fiber.Ctx) error {
+
+// }

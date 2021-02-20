@@ -8,6 +8,7 @@ import (
 	"placement/models"
 	"strconv"
 	"strings"
+	"sync"
 
 	"placement/services"
 
@@ -294,14 +295,23 @@ func RegisterStudent(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	resumePath := fmt.Sprintf("%s/public/resume/%s.%s", path, body.ID.Hex(), resumeExt)
-	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, body.ID.Hex(), avatarExt)
-
+	avatarPath := fmt.Sprintf("%s/public/avatar/%s.%s", path, body.ID.Hex(), avatarExt)
+	var wg sync.WaitGroup
 	if err = c.SaveFile(resume, resumePath); err == nil {
-		body.Avatar = fmt.Sprintf("/avatar/%s.%s", body.ID, avatarExt)
+		body.Resume = fmt.Sprintf("/resume/%s.%s", body.ID.Hex(), resumeExt)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			studentService.UpdateLoggedInStudent(body)
+		}()
 	}
-	if err = c.SaveFile(avatar, filePath); err == nil {
-		body.Resume = fmt.Sprintf("/resume/%s.%s", body.ID, resumeExt)
-		studentService.UpdateLoggedInStudent(body)
+	if err = c.SaveFile(avatar, avatarPath); err == nil {
+		body.Avatar = fmt.Sprintf("/avatar/%s.%s", body.ID.Hex(), avatarExt)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			studentService.UpdateLoggedInStudent(body)
+		}()
 	}
 	accessToken, _ := jwtService.GenerateAccessToken(body.ID.Hex(), models.StudentRoll)
 	refreshToken, _ := jwtService.GenerateRefreshToken(body.ID.Hex(), models.StudentRoll)
@@ -310,6 +320,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 		RefreshToken: refreshToken,
 		Roll:         models.StudentRoll,
 	}
+	wg.Wait()
 	return c.JSON(tokenResponse)
 }
 
@@ -339,7 +350,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	student, err := studentService.FindStudentByID(id)
+	body, err = studentService.FindStudentByID(id)
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadGateway,
@@ -348,36 +359,36 @@ func UpdateStudent(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	if firstName := body.FirstName; firstName != "" {
-		student.FirstName = firstName
+		body.FirstName = firstName
 	}
 	if lastName := body.LastName; lastName != "" {
-		student.LastName = lastName
+		body.LastName = lastName
 	}
 	if uinNumber := body.UINNumber; uinNumber != "" {
-		student.UINNumber = uinNumber
+		body.UINNumber = uinNumber
 	}
 	if phoneNumber := body.PhoneNumber; phoneNumber != "" {
-		student.PhoneNumber = phoneNumber
+		body.PhoneNumber = phoneNumber
 	}
 	if gender := body.Gender; gender != "" {
-		student.Gender = gender
+		body.Gender = gender
 	}
 	if email := body.Email; email != "" {
-		student.Email = email
+		body.Email = email
 	}
 	if department := body.Department; department != "" {
-		student.Department = department
+		body.Department = department
 	}
 	if program := body.Program; program != "" {
-		student.Program = program
+		body.Program = program
 	}
 	if currentAddress := body.CurrentAddress; currentAddress != "" {
-		student.CurrentAddress = currentAddress
+		body.CurrentAddress = currentAddress
 	}
 	if homeAddress := body.HomeAddress; homeAddress != "" {
-		student.HomeAddress = homeAddress
+		body.HomeAddress = homeAddress
 	}
-	err = studentService.UpdateLoggedInStudent(student)
+	err = studentService.UpdateLoggedInStudent(body)
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadGateway,
@@ -385,7 +396,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	return c.JSON(student)
+	return c.JSON(body)
 }
 
 // UploadStudentAvatar uploads and updates avatar for logged in student
@@ -437,6 +448,7 @@ func UploadStudentAvatar(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+
 	student, err := studentService.FindStudentByID(userID.(string))
 	if err != nil {
 		error := models.ErrorResponse{
@@ -535,6 +547,7 @@ func UploadStudentResume(c *fiber.Ctx) error {
 // GetOneStudent function to get one student
 func GetOneStudent(c *fiber.Ctx) error {
 	userID := c.Params("id")
+	var student *models.Student
 	student, err := studentService.FindStudentByID(userID)
 	if err != nil {
 		error := models.ErrorResponse{
