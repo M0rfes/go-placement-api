@@ -23,6 +23,8 @@ type CompanyService interface {
 	LoginCompany(email, password string) (*models.Company, error)
 	FindOneCompany(query *bson.M, opts ...*options.FindOneOptions) (*models.Company, error)
 	UpdateCompany(company *models.Company) error
+	FindCompanyByID(id string, opts ...*options.FindOneOptions) (*models.Company, error)
+	GetAllCompanies(limit, skip *int64) []*models.Company
 }
 
 type companyService struct {
@@ -35,6 +37,7 @@ func NewCompanyService() CompanyService {
 
 func (s *companyService) RegisterCompany(company *models.Company) (*models.Company, error) {
 	oldCompany, _ := s.FindOneCompany(&bson.M{"email": company.Email})
+	fmt.Println(oldCompany)
 	if oldCompany != nil {
 		return nil, fmt.Errorf("email already in use")
 	}
@@ -47,7 +50,7 @@ func (s *companyService) RegisterCompany(company *models.Company) (*models.Compa
 	if err != nil {
 		return nil, err
 	}
-	return oldCompany, nil
+	return company, nil
 }
 
 func (s *companyService) LoginCompany(email, password string) (*models.Company, error) {
@@ -55,7 +58,7 @@ func (s *companyService) LoginCompany(email, password string) (*models.Company, 
 	if company == nil {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
-	if companyHash.CheckPasswordHash(company.Password, password) {
+	if !companyHash.CheckPasswordHash(company.Password, password) {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
 	return company, nil
@@ -76,4 +79,34 @@ func (s *companyService) FindOneCompany(query *bson.M, opts ...*options.FindOneO
 
 func (s *companyService) UpdateCompany(company *models.Company) error {
 	return mgm.Coll(company).Update(company)
+}
+
+func (s *companyService) FindCompanyByID(id string, opts ...*options.FindOneOptions) (*models.Company, error) {
+	company := &models.Company{}
+	pid, err := company.PrepareID(id)
+	if err != nil {
+		return nil, err
+	}
+	company, err = s.FindOneCompany(&bson.M{"_id": pid}, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return company, nil
+}
+
+func (s *companyService) GetAllCompanies(limit, skip *int64) []*models.Company {
+	company := &models.Company{}
+	result, err := mgm.Coll(company).Find(mgm.Ctx(), &bson.M{}, &options.FindOptions{
+		Projection: &bson.M{"password": false},
+		Limit:      limit,
+		Skip:       skip,
+	})
+	companies := make([]*models.Company, 0)
+	if err != nil {
+		return companies
+	}
+	if err := result.All(mgm.Ctx(), &companies); err != nil {
+		return companies
+	}
+	return companies
 }

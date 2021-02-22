@@ -102,12 +102,12 @@ func (s *studentService) GetAllStudents(limit, skip *int64) []*models.Student {
 		Limit:      limit,
 		Skip:       skip,
 	})
+	students := make([]*models.Student, 0)
 	if err != nil {
-		return nil
+		return students
 	}
-	students := make([]*models.Student, 10)
 	if err = result.All(mgm.Ctx(), &students); err != nil {
-		return nil
+		return students
 	}
 	return students
 }

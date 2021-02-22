@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"placement/models"
 	"placement/services"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,14 +21,14 @@ func init() {
 	companyService = services.NewCompanyService()
 }
 
-// RegisterCompany handler to register a company
+// RegisterCompany handler to register a company.
 func RegisterCompany(c *fiber.Ctx) error {
 	var body = &models.Company{
 		Name:               c.FormValue("name"),
 		Email:              c.FormValue("email"),
 		RegistrationNumber: c.FormValue("registrationNumber"),
 		GSTNumber:          c.FormValue("gstNumber"),
-		WebSiteURL:         c.FormValue("webSiteUrl"),
+		WebSiteURL:         c.FormValue("webSiteURL"),
 		PhoneNumber:        c.FormValue("phoneNumber"),
 		Address:            c.FormValue("address"),
 		Password:           c.FormValue("password"),
@@ -115,7 +117,7 @@ func RegisterCompany(c *fiber.Ctx) error {
 	body, err := companyService.RegisterCompany(body)
 	if err != nil {
 		error := models.ErrorResponse{
-			Message: "something went wrong",
+			Message: err.Error(),
 			Status:  http.StatusInternalServerError,
 		}
 		return c.Status(error.Status).JSON(error)
@@ -139,14 +141,6 @@ func RegisterCompany(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	body, err = companyService.RegisterCompany(body)
-	if err != nil {
-		error := models.ErrorResponse{
-			Message: "something went wrong",
-			Status:  http.StatusInternalServerError,
-		}
-		return c.Status(error.Status).JSON(error)
-	}
 	path, err := os.Getwd()
 	if err != nil {
 		error := models.ErrorResponse{
@@ -161,9 +155,225 @@ func RegisterCompany(c *fiber.Ctx) error {
 		body.Avatar = fmt.Sprintf("/avatar/%s.%s", body.ID.Hex(), avatarExt)
 		companyService.UpdateCompany(body)
 	}
-	return c.JSON(body)
+	accessToken, _ := jwtService.GenerateAccessToken(body.ID.Hex(), models.CompanyRoll)
+	refreshToken, _ := jwtService.GenerateRefreshToken(body.ID.Hex(), models.CompanyRoll)
+	tokenResponse := models.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Roll:         models.StudentRoll,
+	}
+	return c.JSON(tokenResponse)
 }
 
-// func LoginCompany(c *fiber.Ctx) error {
+// LoginCompany handler to login a company.
+func LoginCompany(c *fiber.Ctx) error {
+	var body *models.EmailAndPassword
+	json.Unmarshal(c.Body(), &body)
+	if body == nil {
+		error := models.ErrorResponse{
+			Status:  400,
+			Message: "body cant be empty",
+			Key:     "email,password",
+		}
+		return c.Status(400).JSON(error)
+	}
+	if body.Email == "" {
+		error := models.ErrorResponse{
+			Status:  400,
+			Message: "email cant be empty",
+			Key:     "email",
+		}
+		return c.Status(400).JSON(error)
+	}
+	if body.Password == "" {
+		error := models.ErrorResponse{
+			Status:  400,
+			Message: "password cant be empty",
+			Key:     "password",
+		}
+		return c.Status(400).JSON(error)
+	}
+	company, err := companyService.LoginCompany(body.Email, body.Password)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusUnauthorized,
+			Message: err.Error(),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	accessToken, _ := jwtService.GenerateAccessToken(company.ID.Hex(), models.CompanyRoll)
+	refreshToken, _ := jwtService.GenerateRefreshToken(company.ID.Hex(), models.CompanyRoll)
+	tokenResponse := models.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Roll:         models.StudentRoll,
+	}
+	return c.JSON(tokenResponse)
+}
 
-// }
+// GetLoggedInCompany handler to get the logged in company.
+func GetLoggedInCompany(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	company, err := companyService.FindCompanyByID(userID.(string))
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(company)
+}
+
+// GetAllCompanies handler to get all companies.
+func GetAllCompanies(c *fiber.Ctx) error {
+	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
+	if err != nil {
+		limit = 30
+	}
+	skip, err := strconv.ParseInt(c.Query("skip"), 10, 64)
+	if err != nil {
+		skip = 0
+	}
+	companies := companyService.GetAllCompanies(&limit, &skip)
+
+	return c.JSON(companies)
+}
+
+// GetOneCompany handler to get a company by its ID.
+func GetOneCompany(c *fiber.Ctx) error {
+	id := c.Params("id")
+	company, err := companyService.FindCompanyByID(id)
+	if err != nil {
+		error := &models.ErrorResponse{
+			Message: fmt.Sprintf("company with id: %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(company)
+}
+
+// UpdateCompany handler to updates a company.
+func UpdateCompany(c *fiber.Ctx) error {
+	var body *models.Company
+	id := c.Locals("userID").(string)
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "something went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	company, err := companyService.FindCompanyByID(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusNotFound,
+			Message: fmt.Sprintf("cant find student with id %s", id),
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if name := body.Name; name != "" {
+		company.Name = name
+	}
+	if email := body.Email; email != "" {
+		company.Email = email
+	}
+	if registrationNumber := body.RegistrationNumber; registrationNumber != "" {
+		company.RegistrationNumber = registrationNumber
+	}
+	if gstNumber := body.GSTNumber; gstNumber != "" {
+		company.GSTNumber = gstNumber
+	}
+	if webSiteURL := body.WebSiteURL; webSiteURL != "" {
+		company.WebSiteURL = webSiteURL
+	}
+	if phoneNumber := body.PhoneNumber; phoneNumber != "" {
+		company.PhoneNumber = phoneNumber
+	}
+	if address := body.Address; address != "" {
+		company.Address = address
+	}
+	err = companyService.UpdateCompany(company)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "someting went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(company)
+}
+
+func UploadCompanyAvatar(c *fiber.Ctx) error {
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "can't retrive file form body, Try again",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if file == nil {
+		error := models.ErrorResponse{
+			Message: "empty file",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	path, err := os.Getwd()
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	userID := c.Locals("userID")
+	nameArray := strings.Split(file.Filename, ".")
+	ext := nameArray[len(nameArray)-1]
+	if ext != "jpg" && ext != "png" && ext != "jpeg" {
+		error := models.ErrorResponse{
+			Message: "only jpg png and jpeg file formates are supported",
+			Status:  http.StatusBadRequest,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	filePath := fmt.Sprintf("%s/public/avatar/%s.%s", path, userID, ext)
+	err = c.SaveFile(file, filePath)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+
+	company, err := companyService.FindCompanyByID(userID.(string))
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("company with ID %s not fount", userID),
+			Status:  http.StatusNotFound,
+			Key:     "resume",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	company.Avatar = fmt.Sprintf("/avatar/%s.%s", userID, ext)
+	err = companyService.UpdateCompany(company)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	company.Password = ""
+	return c.JSON(company)
+}

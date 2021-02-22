@@ -48,7 +48,7 @@ func (jwtService *jwtService) GenerateAccessToken(userID string, roll models.Rol
 		userID,
 		roll,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Second * 30).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 30).Unix(),
 			Issuer:    jwtService.issuer,
 			IssuedAt:  time.Now().Unix(),
 		},

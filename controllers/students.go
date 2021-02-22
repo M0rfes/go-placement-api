@@ -89,19 +89,6 @@ func GetLoggedInStudent(c *fiber.Ctx) error {
 	return c.JSON(student)
 }
 
-// RefreshToken refreshes token
-func RefreshToken(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	roll := c.Locals("roll")
-	accessToken, _ := jwtService.GenerateAccessToken(userID.(string), models.Roll(roll.(float64)))
-	refreshToken, _ := jwtService.GenerateRefreshToken(userID.(string), models.Roll(roll.(float64)))
-	tokenResponse := models.LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}
-	return c.JSON(tokenResponse)
-}
-
 // RegisterStudent to register a new student
 func RegisterStudent(c *fiber.Ctx) error {
 	body := &models.Student{
@@ -326,11 +313,11 @@ func RegisterStudent(c *fiber.Ctx) error {
 
 // GetAllStudents gets a list of all students
 func GetAllStudents(c *fiber.Ctx) error {
-	limit, err := strconv.ParseInt(c.Query("limit", "30"), 10, 64)
+	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
 	if err != nil {
 		limit = 30
 	}
-	skip, err := strconv.ParseInt(c.Query("skip", "0"), 10, 64)
+	skip, err := strconv.ParseInt(c.Query("skip"), 10, 64)
 	if err != nil {
 		skip = 0
 	}
@@ -345,58 +332,58 @@ func UpdateStudent(c *fiber.Ctx) error {
 	err := json.Unmarshal(c.Body(), &body)
 	if err != nil {
 		error := models.ErrorResponse{
-			Status:  http.StatusBadGateway,
+			Status:  http.StatusInternalServerError,
 			Message: "something went wrong",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	body, err = studentService.FindStudentByID(id)
+	student, err := studentService.FindStudentByID(id)
 	if err != nil {
 		error := models.ErrorResponse{
-			Status:  http.StatusBadGateway,
-			Message: err.Error(),
+			Status:  http.StatusNotFound,
+			Message: fmt.Sprintf("cant find student with id %s", id),
 		}
 		return c.Status(error.Status).JSON(error)
 	}
 	if firstName := body.FirstName; firstName != "" {
-		body.FirstName = firstName
+		student.FirstName = firstName
 	}
 	if lastName := body.LastName; lastName != "" {
-		body.LastName = lastName
+		student.LastName = lastName
 	}
 	if uinNumber := body.UINNumber; uinNumber != "" {
-		body.UINNumber = uinNumber
+		student.UINNumber = uinNumber
 	}
 	if phoneNumber := body.PhoneNumber; phoneNumber != "" {
-		body.PhoneNumber = phoneNumber
+		student.PhoneNumber = phoneNumber
 	}
 	if gender := body.Gender; gender != "" {
-		body.Gender = gender
+		student.Gender = gender
 	}
 	if email := body.Email; email != "" {
-		body.Email = email
+		student.Email = email
 	}
 	if department := body.Department; department != "" {
-		body.Department = department
+		student.Department = department
 	}
 	if program := body.Program; program != "" {
-		body.Program = program
+		student.Program = program
 	}
 	if currentAddress := body.CurrentAddress; currentAddress != "" {
-		body.CurrentAddress = currentAddress
+		student.CurrentAddress = currentAddress
 	}
 	if homeAddress := body.HomeAddress; homeAddress != "" {
-		body.HomeAddress = homeAddress
+		student.HomeAddress = homeAddress
 	}
-	err = studentService.UpdateLoggedInStudent(body)
+	err = studentService.UpdateLoggedInStudent(student)
 	if err != nil {
 		error := models.ErrorResponse{
-			Status:  http.StatusBadGateway,
-			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+			Message: "someting went wrong",
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	return c.JSON(body)
+	return c.JSON(student)
 }
 
 // UploadStudentAvatar uploads and updates avatar for logged in student
