@@ -110,7 +110,7 @@ func RegisterCompany(c *fiber.Ctx) error {
 		error := models.ErrorResponse{
 			Message: "password and confirm password should be same",
 			Status:  http.StatusBadRequest,
-			Key:     "password,confirmPassword",
+			Key:     "[password,confirmPassword]",
 		}
 		return c.Status(error.Status).JSON(error)
 	}

@@ -259,7 +259,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 	}
 	if body.Password != body.ConfirmPassword {
 		error := models.ErrorResponse{
-			Status:  http.StatusUnauthorized,
+			Status:  http.StatusBadRequest,
 			Message: "password and confirm password must be the same",
 			Key:     "[password confirmPassword]",
 		}
