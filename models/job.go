@@ -15,5 +15,6 @@ type Job struct {
 	Location            string             `json:"location" bson:"location"`
 	Position            string             `json:"position" bson:"position"`
 	LastDayOfSummission primitive.DateTime `json:"lastDayOfSummission" bson:"lastDayOfSummission"`
-	Company             primitive.ObjectID `json:"company" bson:"company"`
+	CompanyID           primitive.ObjectID `json:"-" bson:"companyId"`
+	Company             *Company           `json:"company" bson:"company"`
 }

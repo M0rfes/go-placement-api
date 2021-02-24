@@ -93,7 +93,7 @@ func AddJob(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 
-	job.Company, _ = primitive.ObjectIDFromHex(userID.(string))
+	job.CompanyID, _ = primitive.ObjectIDFromHex(userID.(string))
 	job, err = jobService.CreateJob(job)
 	if err != nil {
 		error := &models.ErrorResponse{
@@ -103,4 +103,9 @@ func AddJob(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	return c.JSON(job)
+}
+
+func GetAllJobs(c *fiber.Ctx) error {
+	jobs := jobService.GetAllJobs()
+	return c.JSON(jobs)
 }

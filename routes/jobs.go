@@ -9,4 +9,5 @@ import (
 
 func SetupJobsRoute(router fiber.Router) {
 	router.Post("/", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.AddJob)
+	router.Get("/", controllers.GetAllJobs)
 }
