@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"placement/models"
 	"placement/services"
@@ -108,4 +109,69 @@ func AddJob(c *fiber.Ctx) error {
 func GetAllJobs(c *fiber.Ctx) error {
 	jobs := jobService.GetAllJobs()
 	return c.JSON(jobs)
+}
+
+func GetJobById(c *fiber.Ctx) error {
+	id := c.Params("id")
+	job, err := jobService.GetJobById(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("job with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(job)
+}
+
+func UpdateJob(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var body *models.Job
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	job, err := jobService.GetJobById(id)
+	if job.CompanyID.Hex() != id {
+		error := models.ErrorResponse{
+			Message: "you don't own this entity",
+			Status:  http.StatusForbidden,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if title := body.Title; title != "" {
+		job.Title = title
+	}
+	if description := body.Description; description != "" {
+		job.Description = description
+	}
+	if openings := body.Openings; openings != 0 {
+		job.Openings = openings
+	}
+	if jobType := body.Type; jobType != "" {
+		job.Type = jobType
+	}
+	if location := body.Location; location != "" {
+		job.Location = location
+	}
+	if position := body.Position; position != "" {
+		job.Position = position
+	}
+	if ls := body.LastDayOfSummission; ls != primitive.DateTime(0) {
+		job.LastDayOfSummission = ls
+	}
+
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("job with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	err = jobService.UpdateJob(job)
+	return c.JSON(job)
 }
