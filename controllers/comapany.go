@@ -114,20 +114,20 @@ func RegisterCompany(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	body, err := companyService.RegisterCompany(body)
-	if err != nil {
-		error := models.ErrorResponse{
-			Message: err.Error(),
-			Status:  http.StatusInternalServerError,
-		}
-		return c.Status(error.Status).JSON(error)
-	}
 	avatar, err := c.FormFile("avatar")
 	if err != nil {
 		error := models.ErrorResponse{
 			Message: "something went wrong while extracting avatar",
 			Status:  http.StatusInternalServerError,
 			Key:     "avatar",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	body, err = companyService.RegisterCompany(body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
 		}
 		return c.Status(error.Status).JSON(error)
 	}

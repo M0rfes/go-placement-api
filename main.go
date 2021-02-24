@@ -35,8 +35,10 @@ func main() {
 	app.Use(cors.New())
 	studentsRouter := app.Group("/students")
 	companiesRouter := app.Group("/companies")
+	jobsRouter := app.Group("/jobs")
 	routes.SetupStudentsRoute(studentsRouter)
 	routes.SetupCompaniesRoute(companiesRouter)
+	routes.SetupJobsRoute(jobsRouter)
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})

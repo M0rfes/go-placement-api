@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ISSCompany middelware checks whether a logged user is student
-func ISSCompany(c *fiber.Ctx) error {
+// ISCompany middelware checks whether a logged user is student
+func ISCompany(c *fiber.Ctx) error {
 	roll := c.Locals("roll")
 	if models.CompanyRoll != models.Roll(roll.(float64)) {
 		err := models.UnAuthorizeError{
