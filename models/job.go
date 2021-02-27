@@ -8,7 +8,7 @@ import (
 // Job defines the structure for a job.
 type Job struct {
 	mgm.DefaultModel    `bson:",inline"`
-	Title               string             `json:"title" bson:"title"`
+	CTC                 uint               `json:"ctc" bson:"ctc"`
 	Description         string             `json:"description" bson:"description"`
 	Openings            uint               `json:"openings" bson:"openings"`
 	Type                string             `json:"type" bson:"type"`

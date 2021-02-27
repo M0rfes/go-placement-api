@@ -7,6 +7,7 @@ import (
 
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -82,12 +83,11 @@ func (s *studentService) LoginStudent(email, password string) (*models.Student, 
 }
 
 func (s *studentService) FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error) {
-	student := &models.Student{}
-	pid, err := student.PrepareID(id)
+	pid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	student, err = s.FindOneStudent(&bson.M{"_id": pid}, opts...)
+	student, err := s.FindOneStudent(&bson.M{"_id": pid}, opts...)
 	if err != nil {
 		return nil, err
 	}

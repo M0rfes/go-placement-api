@@ -6,6 +6,7 @@ import (
 	"github.com/kamva/mgm/v3"
 	o "github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -67,7 +68,7 @@ func (j *jobService) GetAllJobs() *[]*models.Job {
 func (j *jobService) GetAllJobsForCompany(company string) *[]*models.Job {
 	jobs := &[]*models.Job{}
 	ctx := mgm.Ctx()
-	pid, err := (&models.Company{}).PrepareID(company)
+	pid, err := primitive.ObjectIDFromHex(company)
 	if err != nil {
 		return jobs
 	}
@@ -83,15 +84,14 @@ func (j *jobService) GetAllJobsForCompany(company string) *[]*models.Job {
 
 // GetJobByID to get a job by id.
 func (j *jobService) GetJobByID(id string) (*models.Job, error) {
-	job := &models.Job{}
 	jobs := []*models.Job{}
 	companyCollectionName := mgm.Coll(&models.Company{}).Name()
 	ctx := mgm.Ctx()
-	pid, err := job.PrepareID(id)
+	pid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	result, err := mgm.Coll(job).Aggregate(ctx, bson.A{
+	result, err := mgm.Coll(&models.Job{}).Aggregate(ctx, bson.A{
 		bson.M{"$match": bson.M{"_id": pid}},
 		bson.M{o.Lookup: bson.M{
 			"from":         companyCollectionName,

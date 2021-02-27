@@ -36,9 +36,11 @@ func main() {
 	studentsRouter := app.Group("/students")
 	companiesRouter := app.Group("/companies")
 	jobsRouter := app.Group("/jobs")
+	applicationRouter := app.Group("/applications")
 	routes.SetupStudentsRoute(studentsRouter)
 	routes.SetupCompaniesRoute(companiesRouter)
 	routes.SetupJobsRoute(jobsRouter)
+	routes.SetupApplicationRoutes(applicationRouter)
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})

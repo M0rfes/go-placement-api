@@ -38,7 +38,7 @@ func AddJob(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	if job.Title == "" {
+	if job.CTC == 0 {
 		error := models.ErrorResponse{
 			Message: "title cant be empty",
 			Status:  http.StatusBadRequest,
@@ -147,8 +147,8 @@ func UpdateJob(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	if title := body.Title; title != "" {
-		job.Title = title
+	if ctc := body.CTC; ctc != 0 {
+		job.CTC = ctc
 	}
 	if description := body.Description; description != "" {
 		job.Description = description

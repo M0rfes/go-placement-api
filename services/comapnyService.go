@@ -5,6 +5,7 @@ import (
 	"placement/models"
 
 	"github.com/kamva/mgm/v3"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -82,12 +83,11 @@ func (s *companyService) UpdateCompany(company *models.Company) error {
 }
 
 func (s *companyService) FindCompanyByID(id string, opts ...*options.FindOneOptions) (*models.Company, error) {
-	company := &models.Company{}
-	pid, err := company.PrepareID(id)
+	pid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	company, err = s.FindOneCompany(&bson.M{"_id": pid}, opts...)
+	company, err := s.FindOneCompany(&bson.M{"_id": pid}, opts...)
 	if err != nil {
 		return nil, err
 	}
