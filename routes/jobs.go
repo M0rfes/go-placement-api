@@ -7,9 +7,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// SetupJobsRoute to setup jobs routes.
 func SetupJobsRoute(router fiber.Router) {
 	router.Post("/", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.AddJob)
 	router.Get("/", controllers.GetAllJobs)
-	router.Get("/:id", controllers.GetJobById)
+	router.Get("/:id", controllers.GetJobByID)
 	router.Put("/:id", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.UpdateJob)
 }

@@ -19,6 +19,7 @@ func init() {
 	jobService = services.NewJobService()
 }
 
+// AddJob handler to add a job.
 func AddJob(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 	var job *models.Job
@@ -106,14 +107,16 @@ func AddJob(c *fiber.Ctx) error {
 	return c.JSON(job)
 }
 
+// GetAllJobs handler to get all jobs.
 func GetAllJobs(c *fiber.Ctx) error {
 	jobs := jobService.GetAllJobs()
 	return c.JSON(jobs)
 }
 
-func GetJobById(c *fiber.Ctx) error {
+// GetJobByID handler to get one job by ID
+func GetJobByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	job, err := jobService.GetJobById(id)
+	job, err := jobService.GetJobByID(id)
 	if err != nil {
 		error := models.ErrorResponse{
 			Message: fmt.Sprintf("job with id %s not found", id),
@@ -124,6 +127,7 @@ func GetJobById(c *fiber.Ctx) error {
 	return c.JSON(job)
 }
 
+// UpdateJob handler to update a job.
 func UpdateJob(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var body *models.Job
@@ -135,7 +139,7 @@ func UpdateJob(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	job, err := jobService.GetJobById(id)
+	job, err := jobService.GetJobByID(id)
 	if job.CompanyID.Hex() != id {
 		error := models.ErrorResponse{
 			Message: "you don't own this entity",

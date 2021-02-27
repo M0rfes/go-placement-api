@@ -13,13 +13,14 @@ import (
 type JobService interface {
 	CreateJob(job *models.Job) (*models.Job, error)
 	GetAllJobs() *[]*models.Job
-	GetJobById(id string) (*models.Job, error)
+	GetJobByID(id string) (*models.Job, error)
 	UpdateJob(job *models.Job) error
 	GetAllJobsForCompany(company string) *[]*models.Job
 }
 
 type jobService struct{}
 
+// NewJobService constructor for JobService.
 func NewJobService() JobService {
 	return &jobService{}
 }
@@ -80,7 +81,8 @@ func (j *jobService) GetAllJobsForCompany(company string) *[]*models.Job {
 	return jobs
 }
 
-func (j *jobService) GetJobById(id string) (*models.Job, error) {
+// GetJobByID to get a job by id.
+func (j *jobService) GetJobByID(id string) (*models.Job, error) {
 	job := &models.Job{}
 	jobs := []*models.Job{}
 	companyCollectionName := mgm.Coll(&models.Company{}).Name()
