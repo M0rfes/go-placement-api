@@ -6,6 +6,7 @@ import (
 	"github.com/kamva/mgm/v3"
 	o "github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // JobService service for managing jobs.
@@ -14,6 +15,7 @@ type JobService interface {
 	GetAllJobs() *[]*models.Job
 	GetJobById(id string) (*models.Job, error)
 	UpdateJob(job *models.Job) error
+	GetAllJobsForCompany(company string) *[]*models.Job
 }
 
 type jobService struct{}
@@ -53,6 +55,23 @@ func (j *jobService) GetAllJobs() *[]*models.Job {
 				},
 			},
 		},
+	})
+	if err != nil {
+		return jobs
+	}
+	result.All(ctx, jobs)
+	return jobs
+}
+
+func (j *jobService) GetAllJobsForCompany(company string) *[]*models.Job {
+	jobs := &[]*models.Job{}
+	ctx := mgm.Ctx()
+	pid, err := (&models.Company{}).PrepareID(company)
+	if err != nil {
+		return jobs
+	}
+	result, err := mgm.Coll(&models.Job{}).Find(ctx, bson.M{"companyId": pid}, &options.FindOptions{
+		Projection: bson.M{"companyId": false, "company": false},
 	})
 	if err != nil {
 		return jobs

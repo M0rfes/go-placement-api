@@ -12,6 +12,7 @@ func SetupCompaniesRoute(router fiber.Router) {
 	router.Post("/login", controllers.LoginCompany)
 	router.Post("/register", controllers.RegisterCompany)
 	router.Get("/refresh", middelware.IsRefreshTokenValid, controllers.RefreshToken)
+	router.Get("/me/jobs", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.GetMyJobs)
 	router.Get("/me", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.GetLoggedInCompany)
 	router.Get("/", controllers.GetAllCompanies)
 	router.Get("/:id", controllers.GetOneCompany)

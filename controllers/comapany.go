@@ -377,3 +377,10 @@ func UploadCompanyAvatar(c *fiber.Ctx) error {
 	company.Password = ""
 	return c.JSON(company)
 }
+
+// GetMyJobs handler to get jobs created by the logged in company.
+func GetMyJobs(c *fiber.Ctx) error {
+	id := c.Locals("userID")
+	jobs := jobService.GetAllJobsForCompany(id.(string))
+	return c.JSON(jobs)
+}
