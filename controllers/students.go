@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"placement/models"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -313,15 +312,7 @@ func RegisterStudent(c *fiber.Ctx) error {
 
 // GetAllStudents gets a list of all students
 func GetAllStudents(c *fiber.Ctx) error {
-	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
-	if err != nil {
-		limit = 30
-	}
-	skip, err := strconv.ParseInt(c.Query("skip"), 10, 64)
-	if err != nil {
-		skip = 0
-	}
-	students := studentService.GetAllStudents(&limit, &skip)
+	students := studentService.GetAllStudents()
 	return c.JSON(students)
 }
 

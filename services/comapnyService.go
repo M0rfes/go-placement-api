@@ -25,7 +25,7 @@ type CompanyService interface {
 	FindOneCompany(query *bson.M, opts ...*options.FindOneOptions) (*models.Company, error)
 	UpdateCompany(company *models.Company) error
 	FindCompanyByID(id string, opts ...*options.FindOneOptions) (*models.Company, error)
-	GetAllCompanies(limit, skip *int64) *[]*models.Company
+	GetAllCompanies() *[]*models.Company
 }
 
 type companyService struct {
@@ -94,12 +94,10 @@ func (s *companyService) FindCompanyByID(id string, opts ...*options.FindOneOpti
 	return company, nil
 }
 
-func (s *companyService) GetAllCompanies(limit, skip *int64) *[]*models.Company {
+func (s *companyService) GetAllCompanies() *[]*models.Company {
 	company := &models.Company{}
 	result, err := mgm.Coll(company).Find(mgm.Ctx(), &bson.M{}, &options.FindOptions{
 		Projection: &bson.M{"password": false},
-		Limit:      limit,
-		Skip:       skip,
 	})
 	companies := &[]*models.Company{}
 	if err != nil {

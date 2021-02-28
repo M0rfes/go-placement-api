@@ -26,7 +26,7 @@ type StudentService interface {
 	FindOneStudent(query *bson.M, opts ...*options.FindOneOptions) (*models.Student, error)
 	LoginStudent(email, password string) (*models.Student, error)
 	FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error)
-	GetAllStudents(limit, skip *int64) *[]*models.Student
+	GetAllStudents() *[]*models.Student
 	UpdateLoggedInStudent(student *models.Student) error
 }
 
@@ -95,12 +95,10 @@ func (s *studentService) FindStudentByID(id string, opts ...*options.FindOneOpti
 	return student, nil
 }
 
-func (s *studentService) GetAllStudents(limit, skip *int64) *[]*models.Student {
+func (s *studentService) GetAllStudents() *[]*models.Student {
 	student := &models.Student{}
 	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{}, &options.FindOptions{
 		Projection: bson.M{"password": false},
-		Limit:      limit,
-		Skip:       skip,
 	})
 	students := &[]*models.Student{}
 	if err != nil {

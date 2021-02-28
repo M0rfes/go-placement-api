@@ -7,7 +7,6 @@ import (
 	"os"
 	"placement/models"
 	"placement/services"
-	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -227,16 +226,7 @@ func GetLoggedInCompany(c *fiber.Ctx) error {
 
 // GetAllCompanies handler to get all companies.
 func GetAllCompanies(c *fiber.Ctx) error {
-	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
-	if err != nil {
-		limit = 30
-	}
-	skip, err := strconv.ParseInt(c.Query("skip"), 10, 64)
-	if err != nil {
-		skip = 0
-	}
-	companies := companyService.GetAllCompanies(&limit, &skip)
-
+	companies := companyService.GetAllCompanies()
 	return c.JSON(companies)
 }
 
