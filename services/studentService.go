@@ -76,6 +76,9 @@ func (s *studentService) LoginStudent(email, password string) (*models.Student, 
 	if student == nil {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
+	if !student.Approved {
+		return nil, fmt.Errorf("Your account isn't approved yet")
+	}
 	if !studentHash.CheckPasswordHash(student.Password, password) {
 		return nil, fmt.Errorf("UnAuthorize")
 	}

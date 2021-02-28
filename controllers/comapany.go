@@ -167,14 +167,13 @@ func RegisterCompany(c *fiber.Ctx) error {
 // LoginCompany handler to login a company.
 func LoginCompany(c *fiber.Ctx) error {
 	var body *models.EmailAndPassword
-	json.Unmarshal(c.Body(), &body)
-	if body == nil {
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
 		error := models.ErrorResponse{
-			Status:  400,
+			Status:  http.StatusBadRequest,
 			Message: "body cant be empty",
-			Key:     "email,password",
 		}
-		return c.Status(400).JSON(error)
+		return c.Status(error.Status).JSON(error)
 	}
 	if body.Email == "" {
 		error := models.ErrorResponse{
@@ -251,8 +250,8 @@ func UpdateCompany(c *fiber.Ctx) error {
 	err := json.Unmarshal(c.Body(), &body)
 	if err != nil {
 		error := models.ErrorResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "something went wrong",
+			Status:  http.StatusBadRequest,
+			Message: "body cant be empty",
 		}
 		return c.Status(error.Status).JSON(error)
 	}

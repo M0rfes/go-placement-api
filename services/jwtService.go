@@ -44,6 +44,7 @@ func NewJwtService() JwtService {
 
 // Generate generates a new JWT token
 func (jwtService *jwtService) GenerateAccessToken(userID string, roll models.Roll) (string, error) {
+
 	claim := &accessJwtClaim{
 		userID,
 		roll,
