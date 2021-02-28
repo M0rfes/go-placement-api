@@ -38,6 +38,7 @@ func CreateApplication(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+	application.Status = "pending"
 	userID := c.Locals("userID").(string)
 	application.StudentID, _ = primitive.ObjectIDFromHex(userID)
 	job, err := jobService.GetJobByID(application.JobID.Hex())
@@ -54,6 +55,66 @@ func CreateApplication(c *fiber.Ctx) error {
 	if err != nil {
 		error := models.ErrorResponse{
 			Message: "internal server error",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(application)
+}
+
+func GetAllApplications(c *fiber.Ctx) error {
+	applications := applicationService.GetAllApplications()
+	return c.JSON(applications)
+}
+
+func GetApplicationById(c *fiber.Ctx) error {
+	id := c.Params("id")
+	application, err := applicationService.GetApplicationById(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("application with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(application)
+}
+
+func UpdateApplication(c *fiber.Ctx) error {
+	var body *models.Application
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "body cant be empty",
+			Status:  http.StatusBadRequest,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	userID := c.Locals("userID").(string)
+	id := c.Params("id")
+	application, err := applicationService.GetApplicationById(id)
+
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("application with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if userID != application.Company.ID.Hex() {
+		error := models.ErrorResponse{
+			Message: "you don't have access to this entity",
+			Status:  http.StatusForbidden,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if status := body.Status; status != "" {
+		application.Status = status
+	}
+	err = applicationService.UpdateApplication(application)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
 			Status:  http.StatusInternalServerError,
 		}
 		return c.Status(error.Status).JSON(error)

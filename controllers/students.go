@@ -328,7 +328,7 @@ func GetAllStudents(c *fiber.Ctx) error {
 // UpdateStudent updates the logged in student
 func UpdateStudent(c *fiber.Ctx) error {
 	var body *models.Student
-	id := c.Params("id")
+	id := c.Locals("userID").(string)
 	err := json.Unmarshal(c.Body(), &body)
 	if err != nil {
 		error := models.ErrorResponse{
@@ -345,6 +345,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+	// TODO: only self and Admin can update
 	if firstName := body.FirstName; firstName != "" {
 		student.FirstName = firstName
 	}

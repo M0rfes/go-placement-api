@@ -13,4 +13,5 @@ type Application struct {
 	Job              *Job               `json:"job" bson:"job"`
 	CompanyID        primitive.ObjectID `json:"companyId" bson:"companyId"`
 	Company          *Company           `json:"company" bson:"company"`
+	Status           string             `json:"status" bson:"status"`
 }
