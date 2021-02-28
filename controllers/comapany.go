@@ -384,3 +384,10 @@ func GetMyJobs(c *fiber.Ctx) error {
 	jobs := jobService.GetAllJobsForCompany(id.(string))
 	return c.JSON(jobs)
 }
+
+// GetAllApplicationsForCompany get all applications for logged in company.
+func GetAllApplicationsForCompany(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	applications := applicationService.GetAllApplicationsForCompany(userID)
+	return c.JSON(applications)
+}

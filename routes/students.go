@@ -12,6 +12,7 @@ func SetupStudentsRoute(router fiber.Router) {
 	router.Post("/login", controllers.LoginStudent)
 	router.Post("/register", controllers.RegisterStudent)
 	router.Get("/refresh", middelware.IsRefreshTokenValid, controllers.RefreshToken)
+	router.Get("/me/applications", middelware.IsAccessTokenValid, middelware.ISStudent, controllers.GetAllApplicationsForStudent)
 	router.Get("/me", middelware.IsAccessTokenValid, middelware.ISStudent, controllers.GetLoggedInStudent)
 	router.Get("/", controllers.GetAllStudents)
 	router.Get("/:id", controllers.GetOneStudent)

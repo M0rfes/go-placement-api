@@ -179,3 +179,10 @@ func UpdateJob(c *fiber.Ctx) error {
 	err = jobService.UpdateJob(job)
 	return c.JSON(job)
 }
+
+// GetAllApplicationsForJob handler to get all applications for a job.
+func GetAllApplicationsForJob(c *fiber.Ctx) error {
+	id := c.Params("id")
+	applications := applicationService.GetAllApplicationsForAJob(id)
+	return c.JSON(applications)
+}

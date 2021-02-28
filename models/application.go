@@ -7,7 +7,7 @@ import (
 
 type Application struct {
 	mgm.DefaultModel `bson:",inline"`
-	StudentID        primitive.ObjectID `json:"-" bson:"studentId"`
+	StudentID        primitive.ObjectID `json:"studentID" bson:"studentId"`
 	Student          *Student           `json:"student" bson:"student"`
 	JobID            primitive.ObjectID `json:"jobId" bson:"jobId"`
 	Job              *Job               `json:"job" bson:"job"`

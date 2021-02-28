@@ -546,3 +546,10 @@ func GetOneStudent(c *fiber.Ctx) error {
 	}
 	return c.JSON(student)
 }
+
+// GetAllApplicationsForStudent handler to get all applications for logged in student.
+func GetAllApplicationsForStudent(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	applications := applicationService.GetAllApplicationsForStudent(userID)
+	return c.JSON(applications)
+}
