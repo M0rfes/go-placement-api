@@ -367,6 +367,30 @@ func UpdateStudent(c *fiber.Ctx) error {
 	if homeAddress := body.HomeAddress; homeAddress != "" {
 		student.HomeAddress = homeAddress
 	}
+	if sem1 := body.Sem1; sem1 != 0 {
+		student.Sem1 = sem1
+	}
+	if sem2 := body.Sem2; sem2 != 0 {
+		student.Sem2 = sem2
+	}
+	if sem3 := body.Sem3; sem3 != 0 {
+		student.Sem3 = sem3
+	}
+	if sem4 := body.Sem4; sem4 != 0 {
+		student.Sem4 = sem4
+	}
+	if sem5 := body.Sem5; 5 != 0 {
+		student.Sem5 = sem5
+	}
+	if sem6 := body.Sem6; sem6 != 0 {
+		student.Sem6 = sem6
+	}
+	if sem7 := body.Sem7; sem7 != 0 {
+		student.Sem7 = sem7
+	}
+	if sem8 := body.Sem8; sem8 != 0 {
+		student.Sem8 = sem8
+	}
 	err = studentService.UpdateLoggedInStudent(student)
 	if err != nil {
 		error := models.ErrorResponse{
