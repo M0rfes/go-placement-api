@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	studentHash = &hashService{14}
+	studentHash = NewHashService(14)
 }
 
 // StudentService interface
@@ -28,6 +28,8 @@ type StudentService interface {
 	FindStudentByID(id string, opts ...*options.FindOneOptions) (*models.Student, error)
 	GetAllStudents() *[]*models.Student
 	UpdateLoggedInStudent(student *models.Student) error
+	GetAllApprovedStudents() *[]*models.Student
+	GetAllUnApprovedStudents() *[]*models.Student
 }
 
 type studentService struct {
@@ -101,6 +103,36 @@ func (s *studentService) FindStudentByID(id string, opts ...*options.FindOneOpti
 func (s *studentService) GetAllStudents() *[]*models.Student {
 	student := &models.Student{}
 	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{}, &options.FindOptions{
+		Projection: bson.M{"password": false},
+	})
+	students := &[]*models.Student{}
+	if err != nil {
+		return students
+	}
+	if err = result.All(mgm.Ctx(), students); err != nil {
+		return students
+	}
+	return students
+}
+
+func (s *studentService) GetAllApprovedStudents() *[]*models.Student {
+	student := &models.Student{}
+	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"Approved": true}, &options.FindOptions{
+		Projection: bson.M{"password": false},
+	})
+	students := &[]*models.Student{}
+	if err != nil {
+		return students
+	}
+	if err = result.All(mgm.Ctx(), students); err != nil {
+		return students
+	}
+	return students
+}
+
+func (s *studentService) GetAllUnApprovedStudents() *[]*models.Student {
+	student := &models.Student{}
+	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"Approved": false}, &options.FindOptions{
 		Projection: bson.M{"password": false},
 	})
 	students := &[]*models.Student{}

@@ -39,19 +39,19 @@ func LoginStudent(c *fiber.Ctx) error {
 	}
 	if body.Email == "" {
 		error := models.ErrorResponse{
-			Status:  400,
+			Status:  http.StatusBadRequest,
 			Message: "email cant be empty",
 			Key:     "email",
 		}
-		return c.Status(400).JSON(error)
+		return c.Status(error.Status).JSON(error)
 	}
 	if body.Password == "" {
 		error := models.ErrorResponse{
-			Status:  400,
+			Status:  http.StatusBadRequest,
 			Message: "password cant be empty",
 			Key:     "password",
 		}
-		return c.Status(400).JSON(error)
+		return c.Status(error.Status).JSON(error)
 	}
 	student, err := studentService.LoginStudent(body.Email, body.Password)
 	if err != nil {
@@ -566,4 +566,16 @@ func GetAllApplicationsForStudent(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
 	applications := applicationService.GetAllApplicationsForStudent(userID)
 	return c.JSON(applications)
+}
+
+// GetAllApprovedStudent handler to get all students approved students.
+func GetAllApprovedStudent(c *fiber.Ctx) error {
+	students := studentService.GetAllApprovedStudents()
+	return c.JSON(students)
+}
+
+// GetAllUnApprovedStudent handler to get all students approved students.
+func GetAllUnApprovedStudent(c *fiber.Ctx) error {
+	students := studentService.GetAllUnApprovedStudents()
+	return c.JSON(students)
 }

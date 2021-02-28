@@ -7,3 +7,7 @@ type Admin struct {
 	Username         string `json:"username" bson:"username"`
 	Password         string `json:"password" bson:"password"`
 }
+
+type ToggleAproven struct {
+	StudentID string `json:"studentId"`
+}

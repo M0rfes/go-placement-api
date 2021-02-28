@@ -9,9 +9,9 @@ import (
 
 // SetupJobsRoute to setup jobs routes.
 func SetupJobsRoute(router fiber.Router) {
-	router.Post("/", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.AddJob)
+	router.Post("/", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.AddJob)
 	router.Get("/", controllers.GetAllJobs)
 	router.Get("/:id/applications", controllers.GetAllApplicationsForJob)
 	router.Get("/:id", controllers.GetJobByID)
-	router.Put("/:id", middelware.IsAccessTokenValid, middelware.ISCompany, controllers.UpdateJob)
+	router.Put("/:id", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.UpdateJob)
 }

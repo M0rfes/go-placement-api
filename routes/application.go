@@ -8,5 +8,5 @@ import (
 )
 
 func SetupApplicationRoutes(router fiber.Router) {
-	router.Post("/", middelware.IsAccessTokenValid, middelware.ISStudent, controllers.CreateApplication)
+	router.Post("/", middelware.IsAccessTokenValid, middelware.IsStudent, controllers.CreateApplication)
 }

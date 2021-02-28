@@ -177,19 +177,19 @@ func LoginCompany(c *fiber.Ctx) error {
 	}
 	if body.Email == "" {
 		error := models.ErrorResponse{
-			Status:  400,
+			Status:  http.StatusBadRequest,
 			Message: "email cant be empty",
 			Key:     "email",
 		}
-		return c.Status(400).JSON(error)
+		return c.Status(error.Status).JSON(error)
 	}
 	if body.Password == "" {
 		error := models.ErrorResponse{
-			Status:  400,
+			Status:  http.StatusBadRequest,
 			Message: "password cant be empty",
 			Key:     "password",
 		}
-		return c.Status(400).JSON(error)
+		return c.Status(error.Status).JSON(error)
 	}
 	company, err := companyService.LoginCompany(body.Email, body.Password)
 	if err != nil {
