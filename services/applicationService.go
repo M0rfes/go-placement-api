@@ -1,12 +1,15 @@
 package services
 
 import (
+	"fmt"
 	"placement/models"
 
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	b "gopkg.in/mgo.v2/bson"
 )
 
 type ApplicationService interface {
@@ -17,6 +20,7 @@ type ApplicationService interface {
 	GetAllApplicationsForCompany(companyID string) *[]*models.Application
 	GetAllApplicationsForStudent(studentID string) *[]*models.Application
 	UpdateApplication(application *models.Application) error
+	FindOneApplication(query *b.M, opts ...*options.FindOneOptions) (*models.Application, error)
 }
 
 type applicationService struct{}
@@ -149,6 +153,9 @@ func (a *applicationService) GetApplicationById(id string) (*models.Application,
 		return nil, err
 	}
 	result.All(ctx, &applications)
+	if err != nil {
+		return nil, fmt.Errorf("application not found")
+	}
 	return applications[0], nil
 }
 
@@ -297,4 +304,17 @@ func (a *applicationService) GetAllApplicationsForStudent(studentID string) *[]*
 
 func (a *applicationService) UpdateApplication(application *models.Application) error {
 	return mgm.Coll(application).Update(application)
+}
+func (j *applicationService) FindOneApplication(query *b.M, opts ...*options.FindOneOptions) (*models.Application, error) {
+	application := &models.Application{}
+	result := mgm.Coll(application).FindOne(mgm.Ctx(), query, opts...)
+
+	if err := result.Err(); err != nil {
+		return nil, err
+	}
+	err := result.Decode(application)
+	if err != nil {
+		return nil, err
+	}
+	return application, nil
 }

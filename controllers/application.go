@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	b "gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -92,8 +93,15 @@ func UpdateApplication(c *fiber.Ctx) error {
 	}
 	userID := c.Locals("userID").(string)
 	id := c.Params("id")
-	application, err := applicationService.GetApplicationById(id)
-
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("application with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	application, err := applicationService.FindOneApplication(&b.M{"_id": pid})
 	if err != nil {
 		error := models.ErrorResponse{
 			Message: fmt.Sprintf("application with id %s not found", id),

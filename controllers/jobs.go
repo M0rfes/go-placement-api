@@ -142,6 +142,13 @@ func UpdateJob(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("job with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
 	job, err := jobService.FindOneJob(&b.M{"_id": pid})
 	if err != nil {
 		error := models.ErrorResponse{
