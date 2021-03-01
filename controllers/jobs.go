@@ -141,7 +141,8 @@ func UpdateJob(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	job, err := jobService.GetJobByID(id)
-	if job.CompanyID.Hex() != userID {
+
+	if job.Company.ID.Hex() != userID {
 		error := models.ErrorResponse{
 			Message: "you don't own this entity",
 			Status:  http.StatusForbidden,
