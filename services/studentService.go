@@ -30,6 +30,7 @@ type StudentService interface {
 	UpdateLoggedInStudent(student *models.Student) error
 	GetAllApprovedStudents() *[]*models.Student
 	GetAllUnApprovedStudents() *[]*models.Student
+	DeleteStudent(id string) error
 }
 
 type studentService struct {
@@ -147,4 +148,17 @@ func (s *studentService) GetAllUnApprovedStudents() *[]*models.Student {
 
 func (s *studentService) UpdateLoggedInStudent(student *models.Student) error {
 	return mgm.Coll(student).Update(student)
+}
+
+func (s *studentService) DeleteStudent(id string) error {
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	student := &models.Student{}
+	result := mgm.Coll(student).FindOneAndDelete(mgm.Ctx(), bson.M{"id": pid})
+	if err := result.Err(); err != nil {
+		return err
+	}
+	return nil
 }

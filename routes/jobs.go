@@ -14,4 +14,5 @@ func SetupJobsRoute(router fiber.Router) {
 	router.Get("/:id/applications", controllers.GetAllApplicationsForJob)
 	router.Get("/:id", controllers.GetJobByID)
 	router.Put("/:id", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.UpdateJob)
+	router.Delete("/:id", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.DeleteJob)
 }

@@ -21,6 +21,7 @@ type ApplicationService interface {
 	GetAllApplicationsForStudent(studentID string) *[]*models.Application
 	UpdateApplication(application *models.Application) error
 	FindOneApplication(query *b.M, opts ...*options.FindOneOptions) (*models.Application, error)
+	DeleteApplication(id string) error
 }
 
 type applicationService struct{}
@@ -317,4 +318,15 @@ func (j *applicationService) FindOneApplication(query *b.M, opts ...*options.Fin
 		return nil, err
 	}
 	return application, nil
+}
+func (s *applicationService) DeleteApplication(id string) error {
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	result := mgm.Coll(&models.Company{}).FindOneAndDelete(mgm.Ctx(), bson.M{"_id": pid})
+	if err := result.Err(); err != nil {
+		return err
+	}
+	return nil
 }

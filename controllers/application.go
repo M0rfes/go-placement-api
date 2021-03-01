@@ -129,3 +129,17 @@ func UpdateApplication(c *fiber.Ctx) error {
 	}
 	return c.JSON(application)
 }
+
+// DeleteApplication
+func DeleteApplication(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := applicationService.DeleteApplication(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}

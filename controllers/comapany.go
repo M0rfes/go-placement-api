@@ -380,3 +380,31 @@ func GetAllApplicationsForCompany(c *fiber.Ctx) error {
 	applications := applicationService.GetAllApplicationsForCompany(userID)
 	return c.JSON(applications)
 }
+
+// DeleteCompany
+func DeleteCompany(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := companyService.DeleteCompany(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}
+
+// DeleteCompanyByID
+func DeleteCompanyByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := companyService.DeleteCompany(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}

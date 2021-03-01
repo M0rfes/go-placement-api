@@ -579,3 +579,30 @@ func GetAllUnApprovedStudent(c *fiber.Ctx) error {
 	students := studentService.GetAllUnApprovedStudents()
 	return c.JSON(students)
 }
+
+// DeleteStudent
+func DeleteStudent(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	err := studentService.DeleteStudent(userID.(string))
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}
+
+func DeleteStudentById(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	err := studentService.DeleteStudent(userID)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}

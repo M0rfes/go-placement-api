@@ -26,6 +26,7 @@ type CompanyService interface {
 	UpdateCompany(company *models.Company) error
 	FindCompanyByID(id string, opts ...*options.FindOneOptions) (*models.Company, error)
 	GetAllCompanies() *[]*models.Company
+	DeleteCompany(id string) error
 }
 
 type companyService struct {
@@ -107,4 +108,16 @@ func (s *companyService) GetAllCompanies() *[]*models.Company {
 		return companies
 	}
 	return companies
+}
+
+func (s *companyService) DeleteCompany(id string) error {
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	result := mgm.Coll(&models.Company{}).FindOneAndDelete(mgm.Ctx(), bson.M{"_id": pid})
+	if err := result.Err(); err != nil {
+		return err
+	}
+	return nil
 }

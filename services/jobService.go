@@ -20,6 +20,7 @@ type JobService interface {
 	UpdateJob(job *models.Job) error
 	GetAllJobsForCompany(company string) *[]*models.Job
 	FindOneJob(query *b.M, opts ...*options.FindOneOptions) (*models.Job, error)
+	DeleteJob(id string) error
 }
 
 type jobService struct{}
@@ -141,4 +142,16 @@ func (j *jobService) FindOneJob(query *b.M, opts ...*options.FindOneOptions) (*m
 		return nil, err
 	}
 	return job, nil
+}
+
+func (j *jobService) DeleteJob(id string) error {
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	result := mgm.Coll(&models.Job{}).FindOneAndDelete(mgm.Ctx(), bson.M{"_id": pid})
+	if err := result.Err(); err != nil {
+		return err
+	}
+	return nil
 }

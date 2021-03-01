@@ -14,9 +14,11 @@ func SetupCompaniesRoute(router fiber.Router) {
 	router.Get("/refresh", middelware.IsRefreshTokenValid, controllers.RefreshToken)
 	router.Get("/me/jobs", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.GetMyJobs)
 	router.Get("/me/applications", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.GetAllApplicationsForCompany)
+	router.Delete("/me", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.DeleteCompany)
 	router.Get("/me", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.GetLoggedInCompany)
 	router.Get("/", controllers.GetAllCompanies)
 	router.Get("/:id", controllers.GetOneCompany)
+	router.Delete("/:id", middelware.IsAccessTokenValid, middelware.IsAdmin, controllers.DeleteCompanyByID)
 	router.Put("/", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.UpdateCompany)
 	router.Post("/avatar", middelware.IsAccessTokenValid, middelware.IsStudent, controllers.UploadCompanyAvatar)
 }

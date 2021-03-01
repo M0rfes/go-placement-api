@@ -203,3 +203,17 @@ func GetAllApplicationsForJob(c *fiber.Ctx) error {
 	applications := applicationService.GetAllApplicationsForAJob(id)
 	return c.JSON(applications)
 }
+
+// DeleteJob
+func DeleteJob(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := jobService.DeleteJob(id)
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint{"status": http.StatusOK})
+}
