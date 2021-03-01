@@ -118,7 +118,7 @@ func (s *studentService) GetAllStudents() *[]*models.Student {
 
 func (s *studentService) GetAllApprovedStudents() *[]*models.Student {
 	student := &models.Student{}
-	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"Approved": true}, &options.FindOptions{
+	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"approved": true}, &options.FindOptions{
 		Projection: bson.M{"password": false},
 	})
 	students := &[]*models.Student{}
@@ -133,7 +133,7 @@ func (s *studentService) GetAllApprovedStudents() *[]*models.Student {
 
 func (s *studentService) GetAllUnApprovedStudents() *[]*models.Student {
 	student := &models.Student{}
-	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"Approved": false}, &options.FindOptions{
+	result, err := mgm.Coll(student).Find(mgm.Ctx(), bson.M{"approved": false}, &options.FindOptions{
 		Projection: bson.M{"password": false},
 	})
 	students := &[]*models.Student{}
