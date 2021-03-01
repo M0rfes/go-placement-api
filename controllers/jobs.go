@@ -130,6 +130,7 @@ func GetJobByID(c *fiber.Ctx) error {
 // UpdateJob handler to update a job.
 func UpdateJob(c *fiber.Ctx) error {
 	id := c.Params("id")
+	userID := c.Locals("userID").(string)
 	var body *models.Job
 	err := json.Unmarshal(c.Body(), &body)
 	if err != nil {
@@ -140,7 +141,7 @@ func UpdateJob(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	job, err := jobService.GetJobByID(id)
-	if job.CompanyID.Hex() != id {
+	if job.CompanyID.Hex() != userID {
 		error := models.ErrorResponse{
 			Message: "you don't own this entity",
 			Status:  http.StatusForbidden,
