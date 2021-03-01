@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"placement/models"
 
 	"github.com/kamva/mgm/v3"
@@ -8,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	b "gopkg.in/mgo.v2/bson"
 )
 
 // JobService service for managing jobs.
@@ -17,6 +19,7 @@ type JobService interface {
 	GetJobByID(id string) (*models.Job, error)
 	UpdateJob(job *models.Job) error
 	GetAllJobsForCompany(company string) *[]*models.Job
+	FindOneJob(query *b.M, opts ...*options.FindOneOptions) (*models.Job, error)
 }
 
 type jobService struct{}
@@ -116,9 +119,26 @@ func (j *jobService) GetJobByID(id string) (*models.Job, error) {
 		return nil, err
 	}
 	result.All(ctx, &jobs)
+	if len(jobs) == 0 {
+		return nil, fmt.Errorf("no job found")
+	}
 	return jobs[0], nil
 }
 
 func (j *jobService) UpdateJob(job *models.Job) error {
 	return mgm.Coll(job).Update(job)
+}
+
+func (j *jobService) FindOneJob(query *b.M, opts ...*options.FindOneOptions) (*models.Job, error) {
+	job := &models.Job{}
+	result := mgm.Coll(job).FindOne(mgm.Ctx(), query, opts...)
+
+	if err := result.Err(); err != nil {
+		return nil, err
+	}
+	err := result.Decode(job)
+	if err != nil {
+		return nil, err
+	}
+	return job, nil
 }

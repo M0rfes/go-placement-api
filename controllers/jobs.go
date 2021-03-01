@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	b "gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -140,9 +141,16 @@ func UpdateJob(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	job, err := jobService.GetJobByID(id)
-
-	if job.Company.ID.Hex() != userID {
+	pid, err := primitive.ObjectIDFromHex(id)
+	job, err := jobService.FindOneJob(&b.M{"_id": pid})
+	if err != nil {
+		error := models.ErrorResponse{
+			Message: fmt.Sprintf("job with id %s not found", id),
+			Status:  http.StatusNotFound,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	if job.CompanyID.Hex() != userID {
 		error := models.ErrorResponse{
 			Message: "you don't own this entity",
 			Status:  http.StatusForbidden,
@@ -171,14 +179,14 @@ func UpdateJob(c *fiber.Ctx) error {
 		job.LastDayOfSummission = ls
 	}
 
+	err = jobService.UpdateJob(job)
 	if err != nil {
 		error := models.ErrorResponse{
-			Message: fmt.Sprintf("job with id %s not found", id),
-			Status:  http.StatusNotFound,
+			Message: "something went wrong",
+			Status:  http.StatusInternalServerError,
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	err = jobService.UpdateJob(job)
 	return c.JSON(job)
 }
 
