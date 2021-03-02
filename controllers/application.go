@@ -109,7 +109,7 @@ func UpdateApplication(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-	if userID != application.Company.ID.Hex() {
+	if userID != application.CompanyID.Hex() {
 		error := models.ErrorResponse{
 			Message: "you don't have access to this entity",
 			Status:  http.StatusForbidden,
