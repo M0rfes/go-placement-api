@@ -599,7 +599,7 @@ func DeleteStudentById(c *fiber.Ctx) error {
 	err := studentService.DeleteStudent(userID)
 	if err != nil {
 		error := models.ErrorResponse{
-			Message: "something went wrong",
+			Message: err.Error(),
 			Status:  http.StatusInternalServerError,
 		}
 		return c.Status(error.Status).JSON(error)

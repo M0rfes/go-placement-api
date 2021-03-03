@@ -156,7 +156,7 @@ func (s *studentService) DeleteStudent(id string) error {
 		return err
 	}
 	student := &models.Student{}
-	result := mgm.Coll(student).FindOneAndDelete(mgm.Ctx(), bson.M{"id": pid})
+	result := mgm.Coll(student).FindOneAndDelete(mgm.Ctx(), bson.M{"_id": pid})
 	if err := result.Err(); err != nil {
 		return err
 	}
