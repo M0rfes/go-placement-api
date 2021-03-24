@@ -20,5 +20,5 @@ func SetupCompaniesRoute(router fiber.Router) {
 	router.Get("/:id", controllers.GetOneCompany)
 	router.Delete("/:id", middelware.IsAccessTokenValid, middelware.IsAdmin, controllers.DeleteCompanyByID)
 	router.Put("/", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.UpdateCompany)
-	router.Post("/avatar", middelware.IsAccessTokenValid, middelware.IsStudent, controllers.UploadCompanyAvatar)
+	router.Post("/avatar", middelware.IsAccessTokenValid, middelware.IsCompany, controllers.UploadCompanyAvatar)
 }

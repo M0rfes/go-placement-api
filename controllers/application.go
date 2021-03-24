@@ -30,7 +30,6 @@ func CreateApplication(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
-
 	if application.JobID == primitive.NilObjectID {
 		error := models.ErrorResponse{
 			Message: "jobId cant be empty",
@@ -92,6 +91,7 @@ func UpdateApplication(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	userID := c.Locals("userID").(string)
+
 	id := c.Params("id")
 	pid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
