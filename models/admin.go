@@ -11,3 +11,6 @@ type Admin struct {
 type ToggleAproven struct {
 	StudentID string `json:"studentId"`
 }
+type ToggleAprovenCompany struct {
+	CompanyID string `json:"companyId"`
+}

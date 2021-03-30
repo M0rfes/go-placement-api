@@ -408,3 +408,27 @@ func DeleteCompanyByID(c *fiber.Ctx) error {
 	}
 	return c.JSON(map[string]uint{"status": http.StatusOK})
 }
+
+// ToggleCompany
+func ToggleCompany(c *fiber.Ctx) error {
+	var body *models.ToggleAprovenCompany
+	err := json.Unmarshal(c.Body(), &body)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusBadRequest,
+			Message: "body cant be empty",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	err = adminService.ToggleAprovenCompany(body.CompanyID)
+	if err != nil {
+		error := models.ErrorResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "someting went wrong",
+		}
+		return c.Status(error.Status).JSON(error)
+	}
+	return c.JSON(map[string]uint8{
+		"status": http.StatusOK,
+	})
+}

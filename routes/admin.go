@@ -11,4 +11,5 @@ import (
 func SetupAdminRoute(router fiber.Router) {
 	router.Post("/login", controllers.LoginAdmin)
 	router.Post("/toggle", middelware.IsAccessTokenValid, controllers.ToggleAproven)
+	router.Post("/toggleCompay", middelware.IsAccessTokenValid)
 }

@@ -390,6 +390,15 @@ func UpdateStudent(c *fiber.Ctx) error {
 	if sem8 := body.Sem8; sem8 != 0 {
 		student.Sem8 = sem8
 	}
+	if hsc := body.HSC; hsc != 0 {
+		student.HSC = hsc
+	}
+	if ssc := body.SSC; ssc != 0 {
+		student.SSC = ssc
+	}
+	if cgpa := body.CGPA; cgpa != 0 {
+		student.CGPA = cgpa
+	}
 	err = studentService.UpdateLoggedInStudent(student)
 	if err != nil {
 		error := models.ErrorResponse{

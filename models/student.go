@@ -27,5 +27,8 @@ type Student struct {
 	Sem6             uint8  `json:"sem6" bson:"sem6"`
 	Sem7             uint8  `json:"sem7" bson:"sem7"`
 	Sem8             uint8  `json:"sem8" bson:"sem8"`
+	HSC              uint8  `json:"hsc" bson:"hsc"`
+	SSC              uint8  `json:"ssc" bson:"ssc"`
+	CGPA             uint8  `json:"cgpa" bson:"cgpa"`
 	Approved         bool   `json:"approved" bson:"approved"`
 }
