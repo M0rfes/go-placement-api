@@ -51,6 +51,14 @@ func CreateApplication(c *fiber.Ctx) error {
 		return c.Status(error.Status).JSON(error)
 	}
 	application.CompanyID = job.Company.ID
+	student, err := studentService.FindStudentByID(userID)
+	if job.MinCGPA > student.CGPA {
+		error := models.ErrorResponse{
+			Message: "your CGPA is too low",
+			Status:  http.StatusFailedDependency,
+		}
+		return c.Status(error.Status).JSON(error)
+	}
 	err = applicationService.CreateApplication(application)
 	if err != nil {
 		error := models.ErrorResponse{
