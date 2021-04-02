@@ -407,6 +407,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 		}
 		return c.Status(error.Status).JSON(error)
 	}
+	student.Password = ""
 	return c.JSON(student)
 }
 
