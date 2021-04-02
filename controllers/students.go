@@ -323,7 +323,7 @@ func UpdateStudent(c *fiber.Ctx) error {
 	if err != nil {
 		error := models.ErrorResponse{
 			Status:  http.StatusBadRequest,
-			Message: "body cant be empty",
+			Message: err.Error(),
 		}
 		return c.Status(error.Status).JSON(error)
 	}
