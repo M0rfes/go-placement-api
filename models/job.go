@@ -17,5 +17,5 @@ type Job struct {
 	LastDayOfSummission primitive.DateTime `json:"lastDayOfSummission" bson:"lastDayOfSummission"`
 	CompanyID           primitive.ObjectID `json:"-" bson:"companyId"`
 	Company             *Company           `json:"company" bson:"company"`
-	MinCGPA             uint8              `json:"minCGPA" bson:"minCGPA"`
+	MinCGPA             float32            `json:"minCGPA" bson:"minCGPA"`
 }

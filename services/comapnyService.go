@@ -60,9 +60,7 @@ func (s *companyService) LoginCompany(email, password string) (*models.Company, 
 	if company == nil {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
-	if !company.Approved {
-		return nil, fmt.Errorf("Your account isn't approved yet")
-	}
+
 	if !companyHash.CheckPasswordHash(company.Password, password) {
 		return nil, fmt.Errorf("UnAuthorize")
 	}
